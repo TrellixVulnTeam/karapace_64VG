@@ -7,6 +7,7 @@ See LICENSE for details
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from karapace.config import DEFAULTS
+from karapace.dict_database import SchemaRegistryDictDatabase
 from karapace.schema_reader import KafkaSchemaReader, OFFSET_EMPTY, OFFSET_UNINITIALIZED, OffsetsWatcher
 from tests.base_testcase import BaseTestCase
 from unittest.mock import Mock
@@ -138,7 +139,12 @@ def test_readiness_check(testcase: ReadinessTestCase) -> None:
     # Return dict {partition: offsets}, end offset is the next upcoming record offset
     consumer_mock.end_offsets.return_value = {0: testcase.end_offset}
 
-    schema_reader = KafkaSchemaReader(config=DEFAULTS, key_formatter=key_formatter_mock, master_coordinator=None)
+    schema_reader = KafkaSchemaReader(
+        config=DEFAULTS,
+        key_formatter=key_formatter_mock,
+        master_coordinator=None,
+        database=SchemaRegistryDictDatabase(),
+    )
     schema_reader.consumer = consumer_mock
     schema_reader.offset = testcase.cur_offset
 
